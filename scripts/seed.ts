@@ -72,6 +72,25 @@ async function main() {
     { event_id: byslug['zakki-mehndi'], title: "Zakki's Mehndi venue and time", owner_id: who('Kamran'), due: '2026-11-30', category: 'venue' },
     { event_id: parent.id, title: 'Phone numbers for Danyal, Azlan, Mahwish on the site', owner_id: who('Zubia'), due: '2026-11-01', category: 'invites' },
     { event_id: parent.id, title: 'Send invite links to the family list', owner_id: who('Zubia'), due: '2027-01-15', category: 'invites' },
+    // Starter tasks so every login has a non-empty week. Mirrors supabase/seed/20261025_starter_tasks.sql.
+    { event_id: byslug.nikkah, title: 'Nikkah outfit for Zakki', owner_id: who('Zakki'), due: '2027-02-15', category: 'outfits' },
+    { event_id: byslug.shalima, title: 'Shalima outfit for Zakki', owner_id: who('Zakki'), due: '2027-02-15', category: 'outfits' },
+    { event_id: byslug.shalima, title: 'Photographer and videographer: get two quotes', owner_id: who('Zakki'), due: '2026-12-31', category: 'photo and video' },
+    { event_id: byslug.shalima, title: 'Groom side guest list for the Shalima, with Kamran', owner_id: who('Zakki'), due: '2026-12-15', category: 'invites' },
+    { event_id: byslug['yasmeen-mehndi'], title: "Mehndi artist for Yasmeen's Mehndi", owner_id: who('Yasmeen'), due: '2027-01-31', category: 'mehndi artist' },
+    { event_id: byslug.nikkah, title: 'Nikkah outfit for Yasmeen', owner_id: who('Yasmeen'), due: '2027-02-15', category: 'outfits' },
+    { event_id: byslug.shalima, title: 'Shalima outfit for Yasmeen', owner_id: who('Yasmeen'), due: '2027-02-15', category: 'outfits' },
+    { event_id: byslug.shalima, title: 'Bride side guest list for the Shalima, with Taqi', owner_id: who('Yasmeen'), due: '2026-12-15', category: 'invites' },
+    { event_id: byslug['yasmeen-mehndi'], title: "Guest list for Yasmeen's Mehndi", owner_id: who('Asiya'), due: '2026-12-15', category: 'invites' },
+    { event_id: byslug['yasmeen-mehndi'], title: "Catering for Yasmeen's Mehndi: vendor or ourselves", owner_id: who('Asiya'), due: '2027-01-15', category: 'catering' },
+    { event_id: byslug['yasmeen-mehndi'], title: "Flowers and decor for Yasmeen's Mehndi", owner_id: who('Asiya'), due: '2027-02-28', category: 'flowers' },
+    { event_id: byslug['zakki-mehndi'], title: "Guest list for Zakki's Mehndi", owner_id: who('Kamran'), due: '2026-12-15', category: 'invites' },
+    { event_id: byslug.shalima, title: 'Shalima catering: get two quotes', owner_id: who('Kamran'), due: '2026-12-31', category: 'catering' },
+    { event_id: byslug.nikkah, title: 'Nikkah catering: vendor or ourselves', owner_id: who('Taqi'), due: '2027-01-15', category: 'catering' },
+    { event_id: byslug.shalima, title: 'Shalima decor and stage: get two quotes', owner_id: who('Taqi'), due: '2027-01-31', category: 'decor' },
+    { event_id: byslug['zakki-mehndi'], title: "Catering for Zakki's Mehndi: vendor or ourselves", owner_id: who('Zubia'), due: '2027-01-15', category: 'catering' },
+    { event_id: byslug['zakki-mehndi'], title: "Mehndi artist for Zakki's Mehndi", owner_id: who('Zubia'), due: '2027-01-31', category: 'mehndi artist' },
+    { event_id: parent.id, title: 'Event manager for the week: hire one or run it ourselves', owner_id: who('Zubia'), due: '2026-12-31', category: 'event management' },
   ]
   const { error: te } = await db.from('tasks').insert(tasks)
   if (te) throw te
@@ -84,6 +103,6 @@ async function main() {
   const { error: ce } = await db.from('site_content').insert(content.map(c => ({ ...c, event_id: parent.id })))
   if (ce) throw ce
 
-  console.log('Seeded: 1 parent, 4 events, 6 members, 7 tasks, 6 content rows.')
+  console.log('Seeded: 1 parent, 4 events, 6 members, 25 tasks, 6 content rows.')
 }
 main().catch(e => { console.error(e); process.exit(1) })
