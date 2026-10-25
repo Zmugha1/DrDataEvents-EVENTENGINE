@@ -27,6 +27,12 @@ const PARENT_CONTENT: CField[] = [
   { key: 'registry_note', label: 'Gifts line', where: 'Duas and Sadqa', rows: 2 },
   { key: 'sadqa_causes', label: 'Sadqa causes', where: 'Duas and Sadqa', hint: 'One per line: Cause · link', rows: 3 },
 ]
+const MAIL_CONTENT: CField[] = [
+  { key: 'invite_subject', label: 'Invitation email: subject', where: 'Email', rows: 1 },
+  { key: 'invite_body', label: 'Invitation email: body', where: 'Email', hint: 'Placeholders: {family} {events} {link} {reply_by} {seats}', rows: 10 },
+  { key: 'reminder_subject', label: 'Reminder email: subject', where: 'Email', rows: 1 },
+  { key: 'reminder_body', label: 'Reminder email: body', where: 'Email', hint: 'Same placeholders.', rows: 7 },
+]
 const EVENT_CONTENT = (slug: string): CField[] => [
   { key: `times_${slug}`, label: 'Timeline', where: 'Event page, three rows', hint: 'One per line: Label | time. First row is Arrival.', rows: 3 },
   { key: `note_${slug}`, label: 'A note for our guests', where: 'Event page', rows: 3 },
@@ -78,6 +84,12 @@ export default function Website({ s }: { s: Store }) {
         </div>
         <div className="grid md:grid-cols-2 gap-3 text-xs mt-3">
           {PARENT_CONTENT.map(f => <ContentField key={f.key} f={f} value={content[f.key] ?? ''} onSave={saveC} saved={saved} />)}
+        </div>
+      </Card>
+      <Card title="Emails">
+        <p className="text-muted text-xs mb-2">Sent from your Gmail for groom-side families and Asiya's for bride-side. Placeholders fill per family.</p>
+        <div className="grid md:grid-cols-2 gap-3 text-xs">
+          {MAIL_CONTENT.map(f => <ContentField key={f.key} f={f} value={content[f.key] ?? ''} onSave={saveC} saved={saved} />)}
         </div>
       </Card>
       {kids.map(k => (

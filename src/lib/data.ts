@@ -92,3 +92,14 @@ export async function saveSiteContent(event_id: string, key: string, body: strin
   const { error } = await supabase.from('site_content').upsert({ event_id, key, body, published: true }, { onConflict: 'event_id,key' })
   if (error) throw error
 }
+
+// ---------- sending ----------
+export type QueueRow = { id: string; party_id: string | null; kind: string; status: string; sent_at: string | null; error: string | null; created_at: string; to_email: string }
+export const loadQueue = () => all<QueueRow>('send_queue', 'created_at')
+export async function sendAction(body: { action: 'invite' | 'reminder' | 'process' | 'retry'; party_id?: string }) {
+  const { data: { session } } = await supabase.auth.getSession()
+  const r = await fetch('/api/send', { method: 'POST', headers: { Authorization: `Bearer ${session?.access_token ?? ''}` }, body: JSON.stringify(body) })
+  const j = await r.json() as { ok: boolean; error?: string; sent?: number; failed?: number; errors?: string[] }
+  if (!j.ok) throw new Error(j.error ?? 'send failed')
+  return j
+}

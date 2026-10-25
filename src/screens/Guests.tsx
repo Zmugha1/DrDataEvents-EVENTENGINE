@@ -3,7 +3,7 @@ import type { Store } from './Shell'
 import { Card, Kpi, Tag } from './Shell'
 import type { Party, Registration, RsvpRow } from '../lib/types'
 import { fmtDate } from '../lib/types'
-import { loadParties, loadGuestRegs, loadRsvp, addParty, setInvited, updateParty, deleteParty } from '../lib/data'
+import { loadParties, loadGuestRegs, loadRsvp, addParty, setInvited, updateParty, deleteParty, loadQueue, sendAction, type QueueRow } from '../lib/data'
 import { parseCsv, inviteLink } from '../lib/guests'
 
 const SITE = import.meta.env.VITE_SITE_URL ?? 'https://zakkiwedsyasmeen.netlify.app'
@@ -20,9 +20,12 @@ export default function Guests({ s }: { s: Store }) {
   const [f, setF] = useState({ name: '', email: '', phone: '', seats: '2', side: 'groom' as Party['side'], ids: kids.map(k => k.id) })
   const [csv, setCsv] = useState(''); const [csvMsg, setCsvMsg] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
+  const [queue, setQueue] = useState<QueueRow[]>([])
+  const [sending, setSending] = useState<string | null>(null)
+  const [sendMsg, setSendMsg] = useState<string | null>(null)
 
   const reload = useCallback(async () => {
-    try { const [p, r, v] = await Promise.all([loadParties(), loadGuestRegs(), loadRsvp()]); setParties(p); setRegs(r); setRsvp(v); setErr(null) }
+    try { const [p, r, v, q] = await Promise.all([loadParties(), loadGuestRegs(), loadRsvp(), loadQueue()]); setParties(p); setRegs(r); setRsvp(v); setQueue(q); setErr(null) }
     catch (e) { setErr((e as Error).message) }
   }, [])
   useEffect(() => { reload() }, [reload])
@@ -59,6 +62,20 @@ export default function Guests({ s }: { s: Store }) {
   const copy = async (p: Party) => { await navigator.clipboard.writeText(inviteLink(SITE, p.invite_code)); setCopied(p.id); setTimeout(() => setCopied(null), 1500) }
   const remove = async (p: Party) => { if (!confirm(`Remove ${p.name} and their invitations?`)) return; try { await deleteParty(p.id); await reload() } catch (e) { setErr((e as Error).message) } }
 
+  const send = async (action: 'invite' | 'reminder' | 'process' | 'retry', p?: Party) => {
+    setSending(p?.id ?? action); setSendMsg(null)
+    try {
+      const r = await sendAction({ action, party_id: p?.id })
+      setSendMsg(`${r.sent ?? 0} sent${r.failed ? `, ${r.failed} failed: ${(r.errors ?? []).join('; ')}` : ''}`)
+    } catch (e) { setSendMsg((e as Error).message) }
+    setSending(null); await reload()
+  }
+  const sendAllUnsent = async () => {
+    const todo = parties.filter(p => !p.invited_at && !queue.some(q => q.party_id === p.id && q.status === 'queued'))
+    if (!todo.length || !confirm(`Send ${todo.length} invitation${todo.length === 1 ? '' : 's'} now?`)) return
+    for (const p of todo) await send('invite', p)
+  }
+  const lastQ = (p: Party) => queue.filter(q => q.party_id === p.id).sort((a, b) => b.created_at.localeCompare(a.created_at))[0]
   const totals = { families: parties.length, seats: parties.reduce((a, p) => a + p.seats, 0), waiting: parties.filter(waiting).length, opened: parties.filter(p => p.opened_at).length }
 
   return (
@@ -67,6 +84,14 @@ export default function Guests({ s }: { s: Store }) {
       {err && <div className="bg-bad/10 text-bad rounded-md p-3 mb-4 text-xs">{err}</div>}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <Kpi l="Families" v={totals.families} /><Kpi l="Seats invited" v={totals.seats} /><Kpi l="Still waiting" v={totals.waiting} cls={totals.waiting ? 'text-warn' : ''} /><Kpi l="Opened their link" v={totals.opened} />
+      </div>
+      <div className="flex flex-wrap gap-2 items-center mb-4 text-xs">
+        <button onClick={sendAllUnsent} disabled={!!sending} className="bg-orange text-white rounded-md px-3 py-1.5 disabled:opacity-50">Send all unsent invitations</button>
+        <button onClick={() => send('process')} disabled={!!sending} className="bg-navy text-white rounded-md px-3 py-1.5 disabled:opacity-50">Send queued now</button>
+        {queue.some(q => q.status === 'error') && <button onClick={() => send('retry')} disabled={!!sending} className="border border-bad text-bad rounded-md px-3 py-1.5">Retry {queue.filter(q => q.status === 'error').length} failed</button>}
+        {sending && <span className="text-muted">Sending…</span>}
+        {sendMsg && <span className={/failed|not_|error|config/i.test(sendMsg) ? 'text-bad' : 'text-ok'}>{sendMsg}</span>}
+        <span className="text-muted ml-auto">Reminders go out on their own at 42, 21 and 7 days before reply-by.</span>
       </div>
       <Card title="Per event">
         <table className="w-full text-xs"><thead><tr className="text-muted text-left"><th className="py-1">Event</th><th>Families</th><th>Seats</th><th>Accepted</th><th>Declined</th><th>Waiting</th><th>Guests coming</th></tr></thead>
@@ -100,6 +125,15 @@ export default function Guests({ s }: { s: Store }) {
                 {p.opened_at ? <Tag tone="ok">opened {fmtDate(p.opened_at.slice(0, 10))}</Tag> : <Tag>not opened</Tag>}
                 <button className="underline" onClick={() => { const n = prompt('Seats', String(p.seats)); if (n && +n > 0) updateParty(p.id, { seats: +n }).then(reload) }}>Seats</button>
                 <button className="underline text-bad" onClick={() => remove(p)}>Remove</button>
+              </div>
+              <div className="flex flex-wrap gap-x-2 items-center mt-1">
+                {p.invited_at ? <Tag tone="ok">invited {fmtDate(p.invited_at.slice(0, 10))}</Tag> : <Tag tone="warn">not sent</Tag>}
+                {p.reminder_count > 0 && <Tag>{p.reminder_count} reminder{p.reminder_count === 1 ? '' : 's'}</Tag>}
+                {(() => { const q = lastQ(p); return q && q.status !== 'sent' ? <Tag tone={q.status === 'error' ? 'bad' : ''}>{q.kind} {q.status}{q.error ? `: ${q.error}` : ''}</Tag> : null })()}
+                {p.primary_lead_id ? <>
+                  <button className="underline" disabled={!!sending} onClick={() => send('invite', p)}>{p.invited_at ? 'Resend invite' : 'Send invite'}</button>
+                  {p.invited_at && waiting(p) && <button className="underline" disabled={!!sending} onClick={() => send('reminder', p)}>Remind now</button>}
+                </> : <span className="text-muted">no email on file</span>}
               </div>
               {p.dua && <div className="italic text-ink mt-1">“{p.dua}”</div>}
             </div>

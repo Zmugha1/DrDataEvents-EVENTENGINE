@@ -30,3 +30,17 @@ Need an event management system like this? Call Dr. Data. https://drdatadecision
 ## Local build note
 
 `npm run build` needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env`. Without them the bundler sees the startup throw as unconditional and drops the app, so the output looks empty. Netlify has them, so production builds are unaffected.
+
+## Sending email (S5)
+
+Invites and reminders go out through the Gmail API from two mailboxes: groom-side families from Zubia's, bride-side from Asiya's. Queue table `send_queue`; `/api/send` sends on demand from the Guests screen; `send-scheduled` runs daily at 14:00 UTC, queues reminders at 42, 21 and 7 days before reply-by, and sends everything queued. Templates are `site_content` keys `invite_subject`, `invite_body`, `reminder_subject`, `reminder_body`, edited on the Website tab.
+
+One-time setup, Zubia:
+1. Google Cloud Console → a project → APIs and Services → Enable "Gmail API".
+2. OAuth consent screen: External, app name "Event Engine", add both sender emails as test users. Scope `gmail.send`.
+3. Credentials → Create OAuth client ID → Desktop app. Copy the client ID and secret into Netlify (engine site) as `GMAIL_CLIENT_ID` and `GMAIL_CLIENT_SECRET`, scope Functions, secret.
+4. In PowerShell, in the repo: set the two values for the shell only, run `npx tsx scripts/gmail-token.ts`, sign in as yourself, paste the code, copy the printed refresh token into Netlify as `GMAIL_GROOM_REFRESH_TOKEN`. Add `GMAIL_GROOM_FROM` = your Gmail address.
+5. Repeat step 4 signed in as Asiya for `GMAIL_BRIDE_REFRESH_TOKEN` and `GMAIL_BRIDE_FROM`.
+6. Trigger a deploy. Guests → Send invite on a test family with your own email.
+
+Until the env is in, sends land in `send_queue` as `error: sender_not_configured` and the Retry button resends them later.
