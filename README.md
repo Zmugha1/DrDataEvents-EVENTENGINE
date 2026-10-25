@@ -26,3 +26,7 @@ Create the six users in Supabase Auth (Authentication → Users → Add user, em
 Git-linked Netlify site. Push to main is the deploy. Env vars `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` set in Netlify before the first build; VITE_ vars are inlined at build time, so change them and then Clear cache and deploy.
 
 Need an event management system like this? Call Dr. Data. https://drdatadecisionintelligence.com
+
+## Local build note
+
+`npm run build` needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env`. Without them the bundler sees the startup throw as unconditional and drops the app, so the output looks empty. Netlify has them, so production builds are unaffected.

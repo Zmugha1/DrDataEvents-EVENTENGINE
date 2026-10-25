@@ -38,3 +38,49 @@ export async function updateEvent(id: string, patch: Partial<Event>) {
   const { error } = await supabase.from('events').update(patch).eq('id', id)
   if (error) throw error
 }
+
+// ---------- guests ----------
+import type { Party, Registration, RsvpRow } from './types'
+import { makeCode } from './guests'
+
+export const loadParties = () => all<Party>('parties', 'name')
+export const loadGuestRegs = () => all<Registration>('registrations', 'id', q => q.eq('type', 'guest'))
+export const loadRsvp = () => all<RsvpRow>('v_rsvp', 'date')
+
+export async function addParty(input: { parent_id: string; name: string; email: string | null; phone: string | null; seats: number; side: Party['side']; event_ids: string[] }) {
+  let lead_id: string | null = null
+  if (input.email) {
+    const { data, error } = await supabase.from('leads').upsert({ email: input.email.toLowerCase(), name: input.name, phone: input.phone, source: 'guest' }, { onConflict: 'email' }).select('id').single()
+    if (error) throw error; lead_id = data.id
+  }
+  let party: Party | null = null
+  for (let i = 0; i < 5 && !party; i++) {
+    const { data, error } = await supabase.from('parties').insert({ event_id: input.parent_id, name: input.name, primary_lead_id: lead_id, side: input.side, seats: input.seats, invite_code: makeCode(input.name) }).select().single()
+    if (error && error.code !== '23505') throw error
+    if (data) party = data as Party
+  }
+  if (!party) throw new Error('Could not make a unique code')
+  if (input.event_ids.length) {
+    const { error } = await supabase.from('registrations').insert(input.event_ids.map(event_id => ({ event_id, party_id: party!.id, lead_id, type: 'guest', status: 'invited', party_size: input.seats })))
+    if (error) throw error
+  }
+  return party
+}
+
+export async function setInvited(party: Party, event_id: string, on: boolean) {
+  if (on) {
+    const { error } = await supabase.from('registrations').insert({ event_id, party_id: party.id, lead_id: party.primary_lead_id, type: 'guest', status: 'invited', party_size: party.seats })
+    if (error) throw error
+  } else {
+    const { error } = await supabase.from('registrations').delete().eq('party_id', party.id).eq('event_id', event_id).eq('status', 'invited')
+    if (error) throw error
+  }
+}
+export async function updateParty(id: string, patch: Partial<Party>) {
+  const { error } = await supabase.from('parties').update(patch).eq('id', id)
+  if (error) throw error
+}
+export async function deleteParty(id: string) {
+  const r = await supabase.from('registrations').delete().eq('party_id', id); if (r.error) throw r.error
+  const p = await supabase.from('parties').delete().eq('id', id); if (p.error) throw p.error
+}

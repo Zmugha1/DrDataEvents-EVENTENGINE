@@ -20,3 +20,8 @@ export type EventBudget = { event_id: string; parent_event_id: string | null; na
 
 export const money = (n: number | null | undefined) => '$' + Math.round(n ?? 0).toLocaleString()
 export const fmtDate = (d: string | null | undefined) => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+
+export type Party = { id: string; event_id: string; name: string; primary_lead_id: string | null; side: 'groom' | 'bride' | 'both' | null; seats: number; invite_code: string; opened_at: string | null; dua: string | null; created_at: string }
+export type Lead = { id: string; email: string | null; name: string; phone: string | null; source: string }
+export type Registration = { id: string; event_id: string; party_id: string | null; lead_id: string | null; type: string; status: string; attending_count: number | null; attending_names: string | null; meal_choice: string | null; dietary: string | null; rsvp_at: string | null; invited_at: string | null }
+export type RsvpRow = { event_id: string; slug: string; name: string; date: string | null; parties_invited: number; parties_accepted: number; parties_declined: number; parties_waiting: number; seats_invited: number; guests_coming: number }
