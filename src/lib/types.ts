@@ -1,7 +1,7 @@
 export type Event = {
   id: string; slug: string; name: string; short_name: string | null; event_type: 'public' | 'private'
-  parent_event_id: string | null; status: string; date: string | null; start_time: string | null
-  venue_name: string | null; venue_city: string | null; budget_total: number | null; paid_by: string | null
+  parent_event_id: string | null; status: string; date: string | null; start_time: string | null; end_time: string | null
+  venue_name: string | null; venue_address: string | null; venue_city: string | null; venue_map_url: string | null; hashtag: string | null; reply_by: string | null; photo_url: string | null; budget_total: number | null; paid_by: string | null
   guest_list_note: string | null; host_line: string | null; names_line: string | null
   verse_ar: string | null; verse_en: string | null; verse_ref: string | null; dress_code: string | null
   theme: Record<string, string>

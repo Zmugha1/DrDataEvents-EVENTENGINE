@@ -6,12 +6,13 @@ import Tasks from './Tasks'
 import Budget from './Budget'
 import Events from './Events'
 import Guests from './Guests'
+import Website from './Website'
 
 export type Store = { me: Member; members: Member[]; events: Event[]; tasks: Task[]; budget: EventBudget[]; refresh: () => Promise<void> }
-type Page = 'week' | 'tasks' | 'budget' | 'events' | 'guests'
+type Page = 'week' | 'tasks' | 'budget' | 'events' | 'guests' | 'website'
 
 const NAV: { id: Page; label: string }[] = [
-  { id: 'week', label: 'My week' }, { id: 'tasks', label: 'All tasks' }, { id: 'budget', label: 'Budget' }, { id: 'events', label: 'Events' }, { id: 'guests', label: 'Guests' },
+  { id: 'week', label: 'My week' }, { id: 'tasks', label: 'All tasks' }, { id: 'budget', label: 'Budget' }, { id: 'events', label: 'Events' }, { id: 'guests', label: 'Guests' }, { id: 'website', label: 'Website' },
 ]
 
 export default function Shell({ member, onSignOut }: { member: Member; onSignOut: () => void }) {
@@ -49,7 +50,7 @@ export default function Shell({ member, onSignOut }: { member: Member; onSignOut
       <main className="p-5 md:p-7 pb-16">
         {err && <div className="bg-bad/10 text-bad rounded-md p-3 mb-4 text-xs">{err}</div>}
         {!s ? <p className="text-muted">Loading…</p> : (
-          page === 'week' ? <Week s={s} /> : page === 'tasks' ? <Tasks s={s} /> : page === 'budget' ? <Budget s={s} /> : page === 'guests' ? <Guests s={s} /> : <Events s={s} />
+          page === 'week' ? <Week s={s} /> : page === 'tasks' ? <Tasks s={s} /> : page === 'budget' ? <Budget s={s} /> : page === 'guests' ? <Guests s={s} /> : page === 'website' ? <Website s={s} /> : <Events s={s} />
         )}
       </main>
       <footer className="md:col-span-2 bg-navy text-steel text-center text-xs p-4"><b className="text-white">Event Engine</b> · Need an event management system like this? <a className="text-orange" href="https://drdatadecisionintelligence.com">Call Dr. Data.</a></footer>

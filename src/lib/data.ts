@@ -84,3 +84,11 @@ export async function deleteParty(id: string) {
   const r = await supabase.from('registrations').delete().eq('party_id', id); if (r.error) throw r.error
   const p = await supabase.from('parties').delete().eq('id', id); if (p.error) throw p.error
 }
+
+// ---------- site content ----------
+export type SiteContent = { id: string; event_id: string; key: string; body: string; published: boolean }
+export const loadSiteContent = () => all<SiteContent>('site_content', 'key')
+export async function saveSiteContent(event_id: string, key: string, body: string) {
+  const { error } = await supabase.from('site_content').upsert({ event_id, key, body, published: true }, { onConflict: 'event_id,key' })
+  if (error) throw error
+}
