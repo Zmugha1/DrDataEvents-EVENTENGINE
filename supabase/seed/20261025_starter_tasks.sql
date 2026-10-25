@@ -2,8 +2,21 @@
 -- Paste in Supabase SQL Editor once. Safe to re-run: skips a task that already exists (same event + title).
 -- Amounts stay 0 until a real quote lands. No invented figures.
 
+-- Part 1. Spelling: Shalima becomes Valima everywhere in the live rows (events, tasks, site_content).
+update events set slug = 'valima' where slug = 'shalima';
+update events set
+  name = replace(name, 'Shalima', 'Valima'),
+  short_name = replace(short_name, 'Shalima', 'Valima'),
+  host_line = replace(host_line, 'Shalima', 'Valima')
+where name like '%Shalima%' or short_name like '%Shalima%' or host_line like '%Shalima%';
+update tasks set title = replace(title, 'Shalima', 'Valima') where title like '%Shalima%';
+update site_content set body = replace(body, 'Shalima', 'Valima') where body like '%Shalima%';
+update site_content set key = replace(key, 'shalima', 'valima') where key like '%shalima%';
+
+-- Part 2. Starter tasks.
+
 with ev as (
-  select id, slug from events where slug in ('zakki-weds-yasmeen','yasmeen-mehndi','zakki-mehndi','nikkah','shalima')
+  select id, slug from events where slug in ('zakki-weds-yasmeen','yasmeen-mehndi','zakki-mehndi','nikkah','valima')
 ),
 mem as (
   select m.id, split_part(m.name, ' ', 1) as first from members m
@@ -12,24 +25,24 @@ mem as (
 rows_in(slug, first, title, due, category) as (values
   -- Zakki
   ('nikkah',          'Zakki',   'Nikkah outfit for Zakki',                                     date '2027-02-15', 'outfits'),
-  ('shalima',         'Zakki',   'Shalima outfit for Zakki',                                    date '2027-02-15', 'outfits'),
-  ('shalima',         'Zakki',   'Photographer and videographer: get two quotes',               date '2026-12-31', 'photo and video'),
-  ('shalima',         'Zakki',   'Groom side guest list for the Shalima, with Kamran',          date '2026-12-15', 'invites'),
+  ('valima',         'Zakki',   'Valima outfit for Zakki',                                    date '2027-02-15', 'outfits'),
+  ('valima',         'Zakki',   'Photographer and videographer: get two quotes',               date '2026-12-31', 'photo and video'),
+  ('valima',         'Zakki',   'Groom side guest list for the Valima, with Kamran',          date '2026-12-15', 'invites'),
   -- Yasmeen
   ('yasmeen-mehndi',  'Yasmeen', 'Mehndi artist for Yasmeen''s Mehndi',                         date '2027-01-31', 'mehndi artist'),
   ('nikkah',          'Yasmeen', 'Nikkah outfit for Yasmeen',                                   date '2027-02-15', 'outfits'),
-  ('shalima',         'Yasmeen', 'Shalima outfit for Yasmeen',                                  date '2027-02-15', 'outfits'),
-  ('shalima',         'Yasmeen', 'Bride side guest list for the Shalima, with Taqi',            date '2026-12-15', 'invites'),
+  ('valima',         'Yasmeen', 'Valima outfit for Yasmeen',                                  date '2027-02-15', 'outfits'),
+  ('valima',         'Yasmeen', 'Bride side guest list for the Valima, with Taqi',            date '2026-12-15', 'invites'),
   -- Asiya
   ('yasmeen-mehndi',  'Asiya',   'Guest list for Yasmeen''s Mehndi',                            date '2026-12-15', 'invites'),
   ('yasmeen-mehndi',  'Asiya',   'Catering for Yasmeen''s Mehndi: vendor or ourselves',         date '2027-01-15', 'catering'),
   ('yasmeen-mehndi',  'Asiya',   'Flowers and decor for Yasmeen''s Mehndi',                     date '2027-02-28', 'flowers'),
   -- Kamran
   ('zakki-mehndi',    'Kamran',  'Guest list for Zakki''s Mehndi',                              date '2026-12-15', 'invites'),
-  ('shalima',         'Kamran',  'Shalima catering: get two quotes',                            date '2026-12-31', 'catering'),
+  ('valima',         'Kamran',  'Valima catering: get two quotes',                            date '2026-12-31', 'catering'),
   -- Taqi
   ('nikkah',          'Taqi',    'Nikkah catering: vendor or ourselves',                        date '2027-01-15', 'catering'),
-  ('shalima',         'Taqi',    'Shalima decor and stage: get two quotes',                     date '2027-01-31', 'decor'),
+  ('valima',         'Taqi',    'Valima decor and stage: get two quotes',                     date '2027-01-31', 'decor'),
   -- Zubia
   ('zakki-mehndi',    'Zubia',   'Catering for Zakki''s Mehndi: vendor or ourselves',           date '2027-01-15', 'catering'),
   ('zakki-mehndi',    'Zubia',   'Mehndi artist for Zakki''s Mehndi',                           date '2027-01-31', 'mehndi artist'),

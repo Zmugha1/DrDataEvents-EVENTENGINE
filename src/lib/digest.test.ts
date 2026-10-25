@@ -8,7 +8,7 @@ describe('buildDigest', () => {
   it('lists overdue and soon first, with money still to pay', () => {
     const out = buildDigest({ email: 'k@example.com', firstName: 'Kamran', totalSaved: 1560, tasks: [
       t({ title: 'Masjid', event_short: 'Nikkah', due: '2026-10-01', urgency: 'overdue', amount: 800, paid: 0, remaining: 800 }),
-      t({ title: 'Venue', event_short: 'Shalima', due: '2027-03-01', urgency: 'open' }),
+      t({ title: 'Venue', event_short: 'Valima', due: '2027-03-01', urgency: 'open' }),
       t({ title: 'Done thing', done: true, urgency: 'done' }),
     ] })
     expect(out).toContain('DUE THIS WEEK OR OVERDUE')
