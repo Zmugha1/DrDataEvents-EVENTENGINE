@@ -9,3 +9,7 @@ Check: `select proname from pg_proc where proname in ('site_invite','site_rsvp')
 Also `/api/site?i=CODE` (GET) returns `site_invite` for the wedding site.
 
 Netlify env for the engine site, scope Functions, marked secret: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`. Optional `SITE_ORIGINS` (comma list; default https://zakkiwedsyasmeen.netlify.app).
+
+## 20261025170000_s3b_public_events.sql
+
+`site_invite` also returns `public_events` (all open child events, no guest data) so the public view shows every event. Check: `select proname from pg_proc where proname = 'site_invite';` expect 1 row.
