@@ -1,0 +1,11 @@
+---
+description: How work happens in this repo
+alwaysApply: true
+---
+Read README.md and CLAUDE.md before anything else. Then follow WORKFLOW.md.
+Never push to main. Feature branches only, cut from main.
+Never edit an applied migration. New schema = new timestamped file in supabase/migrations with grants and RLS in the same file.
+Never put a key in code, chat, or .env.example. VITE_ prefix only on the Supabase URL and anon key.
+Before commit: npx tsc -b --noEmit, npm run lint, npm test, npm run build, grep dist/assets for service_role.
+No em dashes in code comments, commit messages, or UI copy.
+Never invent a figure. Every number on screen comes from a row.

@@ -1,0 +1,1 @@
+-- check: select count(*) from information_schema.tables where table_schema='public'; -- expect 9
