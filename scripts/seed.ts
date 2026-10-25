@@ -52,7 +52,7 @@ async function main() {
 
   // Six logins. auth.users rows are created by Zubia in the dashboard; members link by email on first login.
   const members = [
-    { name: 'Zubia Mughal', role: "Zakki's mother", email: 'zubia@example.com' },
+    { name: 'Zubia Mughal', role: "Zakki's mother", email: 'zubiaml4l@gmail.com' },
     { name: 'Kamran Sarwar', role: "Zakki's father", email: 'kamran@example.com' },
     { name: 'Asiya Patrick', role: "Yasmeen's mother", email: 'asiya@example.com' },
     { name: 'Taqi Patrick', role: "Yasmeen's father", email: 'taqi@example.com' },
