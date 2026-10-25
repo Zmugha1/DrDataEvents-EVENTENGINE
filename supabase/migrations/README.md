@@ -6,4 +6,6 @@ Guest site read by invite code (`site_invite`), RSVP write (`site_rsvp`, service
 
 Check: `select proname from pg_proc where proname in ('site_invite','site_rsvp');` expect 2 rows.
 
+Also `/api/site?i=CODE` (GET) returns `site_invite` for the wedding site.
+
 Netlify env for the engine site, scope Functions, marked secret: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`. Optional `SITE_ORIGINS` (comma list; default https://zakkiwedsyasmeen.netlify.app).
