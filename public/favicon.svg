@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0B2545"/>
+  <!-- calendar body -->
+  <rect x="12" y="16" width="40" height="36" rx="6" fill="#F3F6F8"/>
+  <rect x="12" y="16" width="40" height="11" rx="6" fill="#8DA9C4"/>
+  <rect x="12" y="22" width="40" height="5" fill="#8DA9C4"/>
+  <!-- rings -->
+  <rect x="21" y="10" width="5" height="11" rx="2.5" fill="#F3F6F8"/>
+  <rect x="38" y="10" width="5" height="11" rx="2.5" fill="#F3F6F8"/>
+  <!-- check -->
+  <path d="M22 38.5 L29 45 L42 32" fill="none" stroke="#F26419" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
